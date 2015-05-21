@@ -1,3 +1,4 @@
+# Vindinium Python bot
 Should work with python2 and python3.
 
 Install deps:
