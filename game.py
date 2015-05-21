@@ -1,4 +1,5 @@
 import re
+from helpers import Map, PriorityQueue
 
 TAVERN = 0
 AIR = -1
@@ -39,8 +40,8 @@ class Game:
                     self.heroes_locs[(row, col)] = obj.id
                 elif (obj == TAVERN):
                     self.taverns_locs.add((row, col))
-
-
+        # Make the map
+        self.map = Map(state['game']['board']['size'], state['game']['board'])
 
 class Board:
     def __parseTile(self, str):
@@ -86,12 +87,12 @@ class Board:
 
         return (n_row, n_col)
 
-
-
 class Hero:
     def __init__(self, hero):
         self.name = hero['name']
-        self.pos = hero['pos']
+        self.pos = (hero['pos']['x'], hero['pos']['y'])
         self.life = hero['life']
         self.gold = hero['gold']
 
+    def __str__(self):
+        return self.name

@@ -5,7 +5,7 @@ import os
 import sys
 import requests
 import re
-from bot import RandomBot, SlowBot
+import bot
 
 TIMEOUT=15
 
@@ -24,6 +24,7 @@ def get_new_game_state(session, server_url, key, mode='training', number_of_turn
     r = session.post(server_url + api_endpoint, params, timeout=10*60)
 
     if(r.status_code == 200):
+        print(r.json())
         return r.json()
     else:
         print("Error when creating the game")
@@ -31,8 +32,8 @@ def get_new_game_state(session, server_url, key, mode='training', number_of_turn
 
 def move(session, url, direction):
     """Send a move to the server
-    
-    Moves can be one of: 'Stay', 'North', 'South', 'East', 'West' 
+
+    Moves can be one of: 'Stay', 'North', 'South', 'East', 'West'
     """
 
     try:
@@ -42,6 +43,7 @@ def move(session, url, direction):
             return r.json()
         else:
             print("Error HTTP %d\n%s\n" % (r.status_code, r.text))
+            print("Time elapsed:", r.elapsed)
             return {'game': {'finished': True}}
     except requests.exceptions.RequestException as e:
         print(e)
@@ -65,7 +67,6 @@ def start(server_url, key, mode, turns, bot):
 
     while not is_finished(state):
         # Some nice output ;)
-        sys.stdout.write('.')
         sys.stdout.flush()
 
         # Choose a move
@@ -90,7 +91,7 @@ if __name__ == "__main__":
         if(mode == "training"):
             number_of_games = 1
             number_of_turns = int(sys.argv[3])
-        else: 
+        else:
             number_of_games = int(sys.argv[3])
             number_of_turns = 300 # Ignored in arena mode
 
@@ -100,5 +101,5 @@ if __name__ == "__main__":
             server_url = "http://vindinium.org"
 
         for i in range(number_of_games):
-            start(server_url, key, mode, number_of_turns, RandomBot())
+            start(server_url, key, mode, number_of_turns, bot.BestBot())
             print("\nGame finished: %d/%d" % (i+1, number_of_games))
