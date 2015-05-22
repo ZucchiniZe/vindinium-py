@@ -1,5 +1,7 @@
 import collections
 import heapq
+import re
+import itertools
 
 class PriorityQueue():
     def __init__(self):
@@ -15,17 +17,37 @@ class PriorityQueue():
         return heapq.heappop(self.elements)[1]
 
 class Map():
-    def __parse_tile(self, tile):
-        
+    def __parse_tile(self, tile, loc):
+        mine = re.match('\$([-0-9])', tile)
+        hero = re.match('\@([0-9])', tile)
+        if(tile == '##'):
+            self.walls.append(loc)
+        if(tile == '[]'):
+            self.taverns.append(loc)
+        if(mine):
+            self.mines.append(loc)
+        if(hero):
+            self.heroes.append(loc)
 
     def __parse_tiles(self, tiles):
         vector = [tiles[i:i+2] for i in range(0, len(tiles), 2)]
         matrix = [vector[i:i+self.size] for i in range(0, len(vector), self.size)]
 
+        map = [[self.__parse_tile(x, (si, i)) for i, x in zip(range(len(xs)), xs)] for si, xs in zip(range(len(matrix)), matrix)]
+        self.weights = {loc: 5 for loc in self.heroes}
+
+        return map
+
     def __init__(self, length, board):
+        self.size = board['size']
         self.width = length
         self.height = length
         self.walls = []
+        self.mines = []
+        self.heroes = []
+        self.taverns = []
+        self.weights = {}
+        self.__parse_tiles(board['tiles'])
 
     def in_bounds(self, id):
         (x, y) = id
@@ -41,6 +63,9 @@ class Map():
         results = filter(self.in_bounds, results)
         results = filter(self.passable, results)
         return results
+
+    def cost(self, a, b):
+        return self.weights.get(b, 1)
 
 def heuristic(a, b):
     (x1, y1) = a
@@ -62,7 +87,7 @@ def a_star(graph, start, goal):
             break
 
         for next in graph.neighbors(current):
-            new_cost = cost_so_far[current] + grapg.cost(current, next)
+            new_cost = cost_so_far[current] + graph.cost(current, next)
             if next not in cost_so_far or new_cost < cost_so_far[next]:
                 cost_so_far[next] = new_cost
                 priority = new_cost + heuristic(goal, next)
@@ -70,3 +95,11 @@ def a_star(graph, start, goal):
                 came_from[next] = current
 
     return came_from, cost_so_far
+
+def reconstruct_path(came_from, start, goal):
+    current = goal
+    path = [current]
+    while current != start:
+        current = came_from[current]
+        path.append(current)
+    return path[::-1]

@@ -6,8 +6,9 @@ import sys
 import requests
 import re
 import bot
+import webbrowser
 
-TIMEOUT=15
+TIMEOUT = 15
 
 def get_new_game_state(session, server_url, key, mode='training', number_of_turns = 10):
     """Get a JSON from the server containing the current state of the game"""
@@ -24,7 +25,6 @@ def get_new_game_state(session, server_url, key, mode='training', number_of_turn
     r = session.post(server_url + api_endpoint, params, timeout=10*60)
 
     if(r.status_code == 200):
-        print(r.json())
         return r.json()
     else:
         print("Error when creating the game")
@@ -42,7 +42,7 @@ def move(session, url, direction):
         if(r.status_code == 200):
             return r.json()
         else:
-            print("Error HTTP %d\n%s\n" % (r.status_code, r.text))
+            print("\nError HTTP %d\n%s" % (r.status_code, r.text))
             print("Time elapsed:", r.elapsed)
             return {'game': {'finished': True}}
     except requests.exceptions.RequestException as e:
@@ -60,10 +60,12 @@ def start(server_url, key, mode, turns, bot):
     session = requests.session()
 
     if(mode=='arena'):
-        print(u'Connected and waiting for other players to join…')
+        print(u'Connected and waiting for other players to join...')
     # Get the initial state
     state = get_new_game_state(session, server_url, key, mode, turns)
     print("Playing at: " + state['viewUrl'])
+    if sys.argv[2] == 'arena':
+        webbrowser.open(state['viewUrl'], new=2)
 
     while not is_finished(state):
         # Some nice output ;)
