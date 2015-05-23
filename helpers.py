@@ -1,7 +1,4 @@
-import collections
-import heapq
-import re
-import itertools
+import collections, heapq, re, math
 
 class PriorityQueue():
     def __init__(self):
@@ -103,3 +100,52 @@ def reconstruct_path(came_from, start, goal):
         current = came_from[current]
         path.append(current)
     return path[::-1]
+
+def draw_tile(graph, id, style, width):
+    r = "."
+    # if 'number' in style and id in style['number']: r = "%d" % style['number'][id]
+    if 'path' in style and id in style['path']: r = "="
+    if id in graph.walls: r = "#"
+    if id in graph.taverns: r = "T"
+    if id in graph.heroes: r = "@"
+    if id in graph.mines: r = "$"
+    if 'goal' in style and id == style['goal']: r = "%"
+    return r
+
+def draw_grid(graph, width=2, print_statement='', **style):
+    for x in range(graph.width):
+        for y in range(graph.height):
+            print("%%-%ds" % width % draw_tile(graph, (x, y), style, width), end="")
+        print(print_statement)
+
+def closest(current, locs):
+    return min(locs, key=lambda c: math.hypot(c[0] - current[0], c[1] - current[1]))
+
+def make_move_to(game):
+    def move_to(place, current):
+        goal = closest(current, game.map.__dict__[place])
+
+        came_from, cost_so_far = a_star(game.map, current, goal)
+
+        path = reconstruct_path(came_from, current, goal)
+        print(draw_grid(game.map, goal=goal, path=path, number=cost_so_far))
+
+        print('Current:', current)
+        print('Next Position:', path[1])
+
+        direction = tuple(x - y for x, y in zip(path[1], path[0]))
+
+        print('Direction Tuple:', direction)
+
+        if direction[0] > 0: # Positive X
+            return "South"
+        if direction[0] < 0: # Negative X
+            return "North"
+        if direction[1] > 0: # Positive Y
+            return "East"
+        if direction[1] < 0: # Negative Y
+            return "West"
+
+        return "Stay"
+
+    return move_to

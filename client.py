@@ -81,6 +81,9 @@ def start(server_url, key, mode, turns, bot):
     # Clean up the session
     session.close()
 
+def ask_bot():
+    selected = input("Which bot would you like to use\n1. HealthAndMineBot (0)\n")
+    return bot.bots[int(selected)]
 
 if __name__ == "__main__":
     if (len(sys.argv) < 4):
@@ -103,5 +106,5 @@ if __name__ == "__main__":
             server_url = "http://vindinium.org"
 
         for i in range(number_of_games):
-            start(server_url, key, mode, number_of_turns, bot.BestBot())
+            start(server_url, key, mode, number_of_turns, eval(ask_bot()))
             print("\nGame finished: %d/%d" % (i+1, number_of_games))
