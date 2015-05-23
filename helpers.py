@@ -17,7 +17,7 @@ class PriorityQueue():
         return heapq.heappop(self.elements)[1]
 
 class Map():
-    def __parse_tile(self, tile, loc):
+    def parse_tile(self, tile, loc):
         mine = re.match('\$([-0-9])', tile)
         hero = re.match('\@([0-9])', tile)
         if(tile == '##'):
@@ -29,11 +29,11 @@ class Map():
         if(hero):
             self.heroes.append(loc)
 
-    def __parse_tiles(self, tiles):
+    def parse_tiles(self, tiles):
         vector = [tiles[i:i+2] for i in range(0, len(tiles), 2)]
         matrix = [vector[i:i+self.size] for i in range(0, len(vector), self.size)]
 
-        map = [[self.__parse_tile(x, (si, i)) for i, x in zip(range(len(xs)), xs)] for si, xs in zip(range(len(matrix)), matrix)]
+        map = [[self.parse_tile(x, (si, i)) for i, x in zip(range(len(xs)), xs)] for si, xs in zip(range(len(matrix)), matrix)]
         self.weights = {loc: 5 for loc in self.heroes}
 
         return map
@@ -47,7 +47,7 @@ class Map():
         self.heroes = []
         self.taverns = []
         self.weights = {}
-        self.__parse_tiles(board['tiles'])
+        self.parse_tiles(board['tiles'])
 
     def in_bounds(self, id):
         (x, y) = id
