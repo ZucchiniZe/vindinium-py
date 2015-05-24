@@ -1,7 +1,7 @@
 from game import Game
-from helpers import a_star, reconstruct_path, draw_grid, make_move_to
+from helpers import make_helpers
 
-bots = ['HealthAndMineBot']
+bots = ['HealthAndMineBot()']
 
 class Bot:
     pass
@@ -9,14 +9,15 @@ class Bot:
 class HealthAndMineBot(Bot):
     def move(self, state):
         self.game = Game(state)
+        turns = self.game.turn
         hero = self.game.heroes[0]
-        move_to = make_move_to(self.game)
+        move_to, next_to = make_helpers(self.game)
 
         if hero.life > 50:
-            move = move_to('mines', hero.pos)
-            print('Direction:', move)
-            return move
+            print('Turns:', turns)
+            if next_to('my_mines'):
+                return move_to('enemy_mines')
+            return move_to('empty_mines')
         else:
-            move = move_to('taverns', hero.pos)
-            print('Direction:', move)
-            return move
+            move = move_to('taverns')
+            return move_to('taverns')
