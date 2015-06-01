@@ -1,5 +1,4 @@
-from game import Game
-from helpers import make_helpers
+from helpers import Game, make_helpers
 
 bots = ['HealthAndMineBot()']
 
