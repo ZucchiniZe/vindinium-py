@@ -1,4 +1,6 @@
-import collections, heapq, re, math
+import collections, heapq, re, math, logging
+
+logging.basicConfig(format='%(asctime)s %(message)s')
 
 class Game:
     def __init__(self, state):
@@ -167,23 +169,27 @@ def draw_grid(graph, width=2, print_statement='', **style):
             print("%%-%ds" % width % draw_tile(graph, (x, y), style, width), end="")
         print(print_statement)
 
-def closest(current, locs):
-    """
-    Find the closest location to current
-    """
-    return min(locs, key=lambda c: math.hypot(c[0] - current[0], c[1] - current[1]))
 
 def make_helpers(game):
     """
     Make helpers for moving the charachter around
     """
     current = game.heroes[0].pos
+    def distance(loc):
+        return tuple(x - y for x, y in zip(loc, current))
+
+    def closest(locs):
+        """
+        Find the closest location to current
+        """
+        return min(locs, key=lambda c: math.hypot(c[0] - current[0], c[1] - current[1]))
+
     def move_to(place):
         """
         Automatically move the charachter to specific place
         """
         if type(place) is str:
-            goal = closest(current, game.map.__dict__[place])
+            goal = closest(game.map.__dict__[place])
         else:
             goal = place
 
@@ -192,12 +198,12 @@ def make_helpers(game):
         path = reconstruct_path(came_from, current, goal)
         print(draw_grid(game.map, goal=goal, path=path, number=cost_so_far))
 
-        print('Current:', current)
-        print('Next Position:', path[1])
+        logging.info('Current:', current)
+        logging.info('Next Position:', path[1])
 
         direction = tuple(x - y for x, y in zip(path[1], path[0]))
 
-        print('Direction Tuple:', direction)
+        logging.info('Direction Tuple:', direction)
 
         if direction[0] > 0: # Positive X
             return "South"
@@ -217,7 +223,7 @@ def make_helpers(game):
         if game.map.__dict__[place] == []:
             return False
         if type(place) is str:
-            goal = closest(current, game.map.__dict__[place])
+            goal = closest(game.map.__dict__[place])
         else:
             goal = place
         distance = tuple(x - y for x, y in zip(goal, current))
@@ -232,4 +238,4 @@ def make_helpers(game):
         else:
             return False
 
-    return move_to, next_to
+    return move_to, next_to, closest, distance

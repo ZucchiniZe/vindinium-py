@@ -1,3 +1,4 @@
+import json
 from helpers import Game, make_helpers
 
 bots = ['HealthAndMineBot()']
@@ -7,10 +8,11 @@ class Bot:
 
 class HealthAndMineBot(Bot):
     def move(self, state):
+        json_state = json.dumps(state, indent=2)
         self.game = Game(state)
         turns = self.game.turn
         hero = self.game.heroes[0]
-        move_to, next_to = make_helpers(self.game)
+        move_to, next_to, closest, distance = make_helpers(self.game)
 
         if hero.life > 50:
             print('Turns:', turns)
