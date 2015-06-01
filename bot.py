@@ -1,4 +1,4 @@
-import json
+import json, logging
 from helpers import Game, make_helpers
 
 bots = ['HealthAndMineBot()']
@@ -15,10 +15,10 @@ class HealthAndMineBot(Bot):
         move_to, next_to, closest, distance = make_helpers(self.game)
 
         if hero.life > 50:
-            print('Turns:', turns)
+            logging.warning('Turns: {0}'.format(turns))
+            logging.warning('Closest {0}: {1}'.format('Heroes', closest('heroes')))
             if next_to('my_mines'):
                 return move_to('enemy_mines')
             return move_to('empty_mines')
         else:
-            move = move_to('taverns')
             return move_to('taverns')
